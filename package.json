@@ -1,0 +1,20 @@
+{
+  "name": "next-chat",
+  "packageManager": "yarn@3.1.1",
+  "scripts": {
+    "api:generate": "openapi-generator-cli version-manager set 5.4.0 && rimraf packages/api && openapi-generator-cli generate -i packages/docs/openapi.yml -g typescript-fetch -o packages/api -p npmName=next-chat-api -p typescriptThreePlus=true",
+    "api:preview": "serve -l 8080 packages/docs",
+    "client:dev": "yarn workspace next-chat-client dev",
+    "client:lint": "yarn workspcae next-chat-client lint",
+    "server:start": "yarn workspace next-chat-server start",
+    "server:typeorm": "yarn workspace next-chat-server typeorm"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.4.26",
+    "rimraf": "^3.0.2",
+    "serve": "^13.0.2"
+  }
+}

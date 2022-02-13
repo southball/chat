@@ -1,0 +1,302 @@
+openapi: 3.0.0
+info:
+  title: Chat API
+  description: API for southball/next-chat.
+  version: 0.0.0
+servers:
+  - url: https://api.chat.southball.dev
+    description: Production server.
+paths:
+  /session:
+    post:
+      operationId: login
+      tags:
+        - User
+      summary: Login.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token]
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Wrong username or password.
+  /accounts:
+    get:
+      operationId: getCurrentAccount
+      tags:
+        - User
+      summary: Get current account metadata.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+    put:
+      operationId: updateCurrentAccount
+      tags:
+        - User
+      summary: Update current account.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdate'
+      responses:
+        '200':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      operationId: registerAccount
+      tags:
+        - User
+      summary: Register a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Ok
+  /chats:
+    get:
+      operationId: getChats
+      tags:
+        - Chat
+      summary: Get the list of chats.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatMetadata'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      operationId: createChat
+      tags:
+        - Chat
+      summary: Create a new chat.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [chat_guid]
+                properties:
+                  chat_guid:
+                    type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /chat/{chat_guid}:
+    get:
+      operationId: getChat
+      tags:
+        - Chat
+      summary: Get chat metadata.
+      parameters:
+        - in: path
+          name: chat_guid
+          schema:
+            type: string
+          required: true
+          description: GUID of chat
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMetadata'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /chat/{chat_guid}/messages:
+    get:
+      operationId: getChatMessages
+      tags:
+        - Chat
+      summary: Get messages from a certain chat.
+      parameters:
+        - in: path
+          name: chat_guid
+          schema:
+            type: string
+          required: true
+          description: GUID of chat
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      operationId: addChatMessage
+      tags:
+        - Chat
+      summary: Send a new message to a certain chat.
+      parameters:
+        - in: path
+          name: chat_guid
+          schema:
+            type: string
+          required: true
+          description: GUID of chat
+      responses:
+        '200':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /friends:
+    get:
+      operationId: getFriends
+      tags:
+        - Friend
+      summary: Get the list of friends.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /friend/{user_guid}:
+    post:
+      operationId: addFriend
+      tags:
+        - Friend
+      summary: Add user to list of friends.
+      parameters:
+        - in: path
+          name: user_guid
+          schema:
+            type: string
+          required: true
+          description: GUID of the other user
+      responses:
+        '200':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      operationId: deleteFriend
+      tags:
+        - Friend
+      summary: Remove user from list of friends.
+      parameters:
+        - in: path
+          name: user_guid
+          schema:
+            type: string
+          required: true
+          description: GUID of the other user
+      responses:
+        '200':
+          description: Ok
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+components:
+  schemas:
+    GUID:
+      type: string
+      format: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      example: '00000000-0000-0000-0000-000000000000'
+    ChatMetadata:
+      type: object
+      required: [latest_message]
+      properties:
+        chat_guid:
+          $ref: '#/components/schemas/GUID'
+        user:
+          $ref: '#/components/schemas/User'
+        latest_message:
+          type: string
+    User:
+      type: object
+      required: [user_guid, username, display_name]
+      properties:
+        user_guid:
+          $ref: '#/components/schemas/GUID'
+        username:
+          type: string
+        display_name:
+          type: string
+    Message:
+      type: object
+      required: [message_guid, body]
+      properties:
+        message_guid:
+          $ref: '#/components/schemas/GUID'
+        body:
+          type: string
+    Account:
+      type: object
+      required: [user_guid, username, display_name]
+      properties:
+        user_guid:
+          $ref: '#/components/schemas/GUID'
+        username:
+          type: string
+        display_name:
+          type: string
+    AccountUpdate:
+      type: object
+      required: [user_guid]
+      properties:
+        user_guid:
+          $ref: '#/components/schemas/GUID'
+        username:
+          type: string
+        display_name:
+          type: string
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
