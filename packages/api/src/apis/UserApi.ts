@@ -66,7 +66,7 @@ export class UserApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/accounts`,
+            path: `/account`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -183,7 +183,7 @@ export class UserApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/accounts`,
+            path: `/account`,
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

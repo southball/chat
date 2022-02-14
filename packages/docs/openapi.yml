@@ -38,7 +38,7 @@ paths:
                     type: string
         '401':
           description: Wrong username or password.
-  /accounts:
+  /account:
     get:
       operationId: getCurrentAccount
       tags:
@@ -66,6 +66,7 @@ paths:
           description: Ok
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  /accounts:
     post:
       operationId: registerAccount
       tags:
